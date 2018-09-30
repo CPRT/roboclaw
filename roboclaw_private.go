@@ -6,7 +6,7 @@ import (
 )
 
 //How many times to re attempt sending and receiving data
-const maxretry = 1
+const maxretry = 3
 
 type crcType uint16
 
@@ -68,11 +68,9 @@ func (r *Roboclaw) write_n(address uint8, cmd uint8, vals... uint8) bool {
 		vals = append(vals, uint8(0xFF & (crc >> 8)), uint8(0xFF & crc))
 		r.port.Write(vals)
 
-		time.Sleep(time.Millisecond*10)
-		return true
-		//if _, err := r.read_bytes(buf); err == nil && buf[0] == 0xFF {
-		//	return true
-		//}
+		if _, err := r.read_bytes(buf); err == nil && buf[0] == 0xFF {
+			return true
+		}
 	}
 	return false
 }
