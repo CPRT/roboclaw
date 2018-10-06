@@ -54,18 +54,14 @@ func (r *Roboclaw) read_bytes(buffer []uint8) (int, error) {
  * @returns (bool) transmission success or failure
  */
 func (r *Roboclaw) write_n(address uint8, cmd uint8, vals... uint8) bool {
-	var (
-		crc crcType
-	)
 
+	var crc crcType = crcType(0)
+	vals = append([]uint8{address, cmd}, vals...)
+	crc.update(vals...)
+	vals = append(vals, uint8(0xFF & (crc >> 8)), uint8(0xFF & crc))
+	
 	for trys := maxretry; trys > 0 ; trys-- {
 		r.port.Flush()
-		crc = crcType(0)
-
-		vals = append([]uint8{address, cmd}, vals...)
-		crc.update(vals...)
-
-		vals = append(vals, uint8(0xFF & (crc >> 8)), uint8(0xFF & crc))
 		r.port.Write(vals)
 
 		if _, err := r.read_bytes(buf); err == nil && buf[0] == 0xFF {
