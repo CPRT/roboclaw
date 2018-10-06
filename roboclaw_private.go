@@ -36,7 +36,11 @@ func (r *Roboclaw) read_bytes(buffer []uint8) (int, error) {
 	var i int
 	//Read the exact number of bytes from the port that will fit into the given slice
 	for i = 0; i < len(buffer); {
-		if num, err := r.port.Read(buffer[i:]); err != nil {
+		// Technically, the fact that err == nil when zero bytes are returned
+		// is an implementation detail of the file descriptor returned by serial.OpenPort.
+		// I think it is better not to rely on it, so this function also 
+		// returns when zero bytes are returned.
+		if num, err := r.port.Read(buffer[i:]); 0 == num || err != nil {
 			return i+num, err
 		} else {
 			//Increment the index to read from
