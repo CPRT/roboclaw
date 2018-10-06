@@ -83,7 +83,7 @@ func (r *Roboclaw) read_n(address uint8, cmd uint8, vals... *uint32) bool {
 		buf []uint8
 		success bool = true
 		crc crcType
-		ccrc crcType = crcType(0)
+		ccrc crcType
 	)
 
 	for trys := maxretry; trys > 0 ; trys-- {
@@ -166,7 +166,7 @@ func (r *Roboclaw) read_count(count uint8, address uint8, cmd uint8) ([]uint8, b
 	var (
 		buf []uint8
 		crc crcType
-		ccrc crcType = crcType(0)
+		ccrc crcType
 	)
 
 	//Only allowed values are 1, 2, and 4
@@ -212,7 +212,7 @@ func (r *Roboclaw) read4_1(address uint8, cmd uint8) (uint32, uint8, bool){
 	var (
 		buf []uint8
 		crc crcType
-		ccrc crcType = crcType(0)
+		ccrc crcType
 		value uint32 = 0
 		status uint8
 	)
