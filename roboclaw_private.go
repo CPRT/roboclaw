@@ -2,7 +2,6 @@ package roboclaw
 
 import (
 	"encoding/binary"
-	"time"
 )
 
 //How many times to re attempt sending and receiving data
@@ -59,7 +58,10 @@ func (r *Roboclaw) read_bytes(buffer []uint8) (int, error) {
  */
 func (r *Roboclaw) write_n(address uint8, cmd uint8, vals... uint8) bool {
 
-	var crc crcType = crcType(0)
+	var (
+		crc crcType = crcType(0)
+	    buf []byte
+	)
 	vals = append([]uint8{address, cmd}, vals...)
 	crc.update(vals...)
 	vals = append(vals, uint8(0xFF & (crc >> 8)), uint8(0xFF & crc))
@@ -68,6 +70,7 @@ func (r *Roboclaw) write_n(address uint8, cmd uint8, vals... uint8) bool {
 		r.port.Flush()
 		r.port.Write(vals)
 
+		buf = make([]byte,1)
 		if _, err := r.read_bytes(buf); err == nil && buf[0] == 0xFF {
 			return true
 		}
