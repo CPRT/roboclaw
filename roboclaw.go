@@ -54,9 +54,10 @@ func Init(rc *Config) (*Roboclaw, error) {
 
 /*
  * Close the roboclaw's serial port
+ * @return {error}
  */
-func (r *Roboclaw) Close() {
-	r.port.Close()
+func (r *Roboclaw) Close() error {
+	return r.port.Close()
 }
 
 // See the roboclaw user manual
