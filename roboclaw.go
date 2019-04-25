@@ -286,7 +286,7 @@ func (r *Roboclaw) ReadVersion(address uint8) (string, error) {
 		version []uint8 = make([]uint8, 0)
 		crc crcType
 		ccrc uint16
-		buf []uint8 = make([]uint8, 1)
+		buf [2]uint8
 		err error
 	)
 
@@ -307,7 +307,7 @@ func (r *Roboclaw) ReadVersion(address uint8) (string, error) {
 
 		// Reads up to 48 bytes
 		for i := 0; i < 48; i++ {
-			if _, err = r.read_bytes(buf); err == nil {
+			if _, err = r.read_bytes(buf[:1]); err == nil {
 
 				//Use append to ensure that version is no longer than it
 				//needs to be
@@ -315,9 +315,7 @@ func (r *Roboclaw) ReadVersion(address uint8) (string, error) {
 				crc.update(buf[0])
 
 				if buf[0] == 0 {
-
-					buf = make([]uint8, 2)
-					if _, err = r.read_bytes(buf); err == nil {
+					if _, err = r.read_bytes(buf[:]); err == nil {
 						ccrc = uint16(buf[0]) << 8
 						ccrc |= uint16(buf[1])
 
@@ -1119,7 +1117,7 @@ func (r *Roboclaw) GetPinFunctions(address uint8) (uint8, uint8, uint8, error) {
 	var (
 		crc crcType
 		ccrc uint16
-		buf []uint8
+		buf [5]uint8
 		err error
 	)
 
@@ -1137,8 +1135,7 @@ func (r *Roboclaw) GetPinFunctions(address uint8) (uint8, uint8, uint8, error) {
 			continue
 		}
 
-		buf = make([]uint8, 5)
-		if _, err = r.read_bytes(buf); err == nil {
+		if _, err = r.read_bytes(buf[:]); err == nil {
 			crc.update(buf[0:3]...)
 
 			ccrc = uint16(buf[3]) << 8

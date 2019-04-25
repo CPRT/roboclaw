@@ -64,7 +64,7 @@ func (r *Roboclaw) write_n(address uint8, cmd uint8, vals... uint8) error {
 
 	var (
 		crc crcType = crcType(0)
-	    buf []byte
+	    buf [1]byte
 		err error
 	)
 	vals = append([]uint8{address, cmd}, vals...)
@@ -81,7 +81,6 @@ func (r *Roboclaw) write_n(address uint8, cmd uint8, vals... uint8) error {
 			continue
 		}
 
-		buf = make([]byte,1)
 		// If the writeSleep flag is true, then
 		// instead of waiting for a reply simply sleep for the expected
 		// timeout (10 milliseconds)
@@ -92,7 +91,7 @@ func (r *Roboclaw) write_n(address uint8, cmd uint8, vals... uint8) error {
 		if r.writeSleep {
 			time.Sleep(time.Millisecond*10)
 			return nil
-		} else if _, err = r.read_bytes(buf); err != nil {
+		} else if _, err = r.read_bytes(buf[:]); err != nil {
 			continue
 		} else if buf[0] == 0xFF {
 			return nil
@@ -112,7 +111,7 @@ func (r *Roboclaw) write_n(address uint8, cmd uint8, vals... uint8) error {
  */
 func (r *Roboclaw) read_n(address uint8, cmd uint8, vals... *uint32) error {
 	var (
-		buf []uint8
+		buf [4]uint8
 		crc crcType
 		ccrc crcType
 		err error
@@ -134,18 +133,16 @@ func (r *Roboclaw) read_n(address uint8, cmd uint8, vals... *uint32) error {
 		}
 
 		for _, val := range vals {
-			buf = make([]byte, 4)
-			if _, err = r.read_bytes(buf); err != nil {
+			if _, err = r.read_bytes(buf[:]); err != nil {
 				continue loop
 			} else {
-				crc.update(buf...)
+				crc.update(buf[:]...)
 				//Format each array of four bytes into the int pointer
-				*val = binary.BigEndian.Uint32(buf)
+				*val = binary.BigEndian.Uint32(buf[:])
 			}
 		}
 
-		buf = make([]byte, 2)
-		if _, err = r.read_bytes(buf); err == nil {
+		if _, err = r.read_bytes(buf[:2]); err == nil {
 			ccrc = crcType(buf[0]) << 8
 			ccrc |= crcType(buf[1])
 
@@ -255,12 +252,12 @@ func (r *Roboclaw) read_count(count uint8, address uint8, cmd uint8) ([]uint8, e
 		buf = make([]uint8, count+2)
 		if _, err = r.read_bytes(buf); err == nil {
 
-			//Update the crc with the data bytes
-			crc.update(buf[0:count]...)
-
 			//The final two bytes are the crc from the motor controller
 			ccrc = crcType(buf[count]) << 8
 			ccrc |= crcType(buf[count+1])
+
+			//Update the crc with the data bytes
+			crc.update(buf[0:count]...)
 
 			if ccrc == crc {
 				return buf[0:count], nil
