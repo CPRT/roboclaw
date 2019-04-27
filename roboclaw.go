@@ -2,34 +2,35 @@
 package roboclaw
 
 import (
-	"github.com/tarm/serial"
-	"time"
 	"fmt"
+	"github.com/tarm/serial"
+	"io"
+	"time"
 )
 
 // A structure for describing the roboclaw interface
 type Roboclaw struct {
-	port *serial.Port
-	retries uint8
+	port       *serial.Port
+	retries    uint8
 	writeSleep bool
 }
 
 type Config struct {
-	Name string		//the name of the serial port
-	Baud int		// the baud rate for the serial port
-	Retries uint8	// the number of attempted retries for sending a command to the roboclaws
-	WriteSleep bool	// The timeout for the roboclaws is 10 milliseconds
-					// However, some operating systems have a minimum timeout above this value
-					// For certain applications, it is inefficient to have to wait for a reply to
-					// a write command (such as setting motor speed) if no remedial action is
-					// possible or planned if the write fails. For example, in the situation
-					// where the tx line to the roboclaw is functional but the rx line has failed,
-					// it is often desired to still be able to write to the roboclaws
-					// but innefficient to wait for the non-existent reply. The WriteSleep
-					// flag causes the system to wait 10 milliseconds after writing the command to the rover
-					// instead of the full time necessary to wait for the reply (which is not expected to come).
-					// This flag does not affect any commands that involve reading from the roboclaws or expected
-					// any reply other than the acknoweldgement 0xFF.
+	Name       string //the name of the serial port
+	Baud       int    // the baud rate for the serial port
+	Retries    uint8  // the number of attempted retries for sending a command to the roboclaws
+	WriteSleep bool   // The timeout for the roboclaws is 10 milliseconds
+	// However, some operating systems have a minimum timeout above this value
+	// For certain applications, it is inefficient to have to wait for a reply to
+	// a write command (such as setting motor speed) if no remedial action is
+	// possible or planned if the write fails. For example, in the situation
+	// where the tx line to the roboclaw is functional but the rx line has failed,
+	// it is often desired to still be able to write to the roboclaws
+	// but innefficient to wait for the non-existent reply. The WriteSleep
+	// flag causes the system to wait 10 milliseconds after writing the command to the rover
+	// instead of the full time necessary to wait for the reply (which is not expected to come).
+	// This flag does not affect any commands that involve reading from the roboclaws or expected
+	// any reply other than the acknoweldgement 0xFF.
 }
 
 /*
@@ -41,12 +42,12 @@ func Init(rc *Config) (*Roboclaw, error) {
 	// The expected timeout for a roboclaw to reply to a message is 10 milliseconds
 	// However, some operating systems have a minimum timeout above this value
 	// For example, on a linux system the minimum timeout for a serial port is 100 milliseconds
-	c := &serial.Config{Name: rc.Name, Baud: rc.Baud, ReadTimeout: time.Millisecond*10}
+	c := &serial.Config{Name: rc.Name, Baud: rc.Baud, ReadTimeout: time.Millisecond * 10}
 
 	if rc.Retries == 0 {
 		return nil, fmt.Errorf("Number of retries must be larger than zero")
 	} else if port, err := serial.OpenPort(c); err == nil {
-		return &Roboclaw{port: port, retries : rc.Retries, writeSleep : rc.WriteSleep}, err
+		return &Roboclaw{port: port, retries: rc.Retries, writeSleep: rc.WriteSleep}, err
 	} else {
 		return nil, err
 	}
@@ -71,7 +72,9 @@ func (r *Roboclaw) Close() error {
  * @return {error}
  */
 func (r *Roboclaw) ForwardM1(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 0, speed)
 }
 
@@ -82,7 +85,9 @@ func (r *Roboclaw) ForwardM1(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) BackwardM1(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 1, speed)
 }
 
@@ -93,7 +98,9 @@ func (r *Roboclaw) BackwardM1(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) ForwardM2(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 4, speed)
 }
 
@@ -104,7 +111,9 @@ func (r *Roboclaw) ForwardM2(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) BackwardM2(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 5, speed)
 }
 
@@ -117,7 +126,9 @@ func (r *Roboclaw) BackwardM2(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) SetMinVoltageMainBattery(address uint8, voltage uint8) error {
-	if (voltage > 140) { return fmt.Errorf("Voltage above maximum of 140") }
+	if voltage > 140 {
+		return fmt.Errorf("Voltage above maximum of 140")
+	}
 	return r.write_n(address, 2, voltage)
 }
 
@@ -145,7 +156,9 @@ func (r *Roboclaw) SetMaxVoltageMainBattery(address uint8, voltage uint8) error 
  * @return {error}
  */
 func (r *Roboclaw) ForwardBackwardM1(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 6, speed)
 }
 
@@ -156,7 +169,9 @@ func (r *Roboclaw) ForwardBackwardM1(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) ForwardBackwardM2(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 7, speed)
 }
 
@@ -167,7 +182,9 @@ func (r *Roboclaw) ForwardBackwardM2(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) ForwardMixed(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 8, speed)
 }
 
@@ -178,7 +195,9 @@ func (r *Roboclaw) ForwardMixed(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) BackwardMixed(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 9, speed)
 }
 
@@ -189,7 +208,9 @@ func (r *Roboclaw) BackwardMixed(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) TurnRightMixed(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 10, speed)
 }
 
@@ -200,7 +221,9 @@ func (r *Roboclaw) TurnRightMixed(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) TurnLeftMixed(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 11, speed)
 }
 
@@ -211,7 +234,9 @@ func (r *Roboclaw) TurnLeftMixed(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) ForwardBackwardMixed(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 12, speed)
 }
 
@@ -222,7 +247,9 @@ func (r *Roboclaw) ForwardBackwardMixed(address uint8, speed uint8) error {
  * @return {error}
  */
 func (r *Roboclaw) LeftRightMixed(address uint8, speed uint8) error {
-	if (speed > 127) { return fmt.Errorf("Speed above maximum of 127") }
+	if speed > 127 {
+		return fmt.Errorf("Speed above maximum of 127")
+	}
 	return r.write_n(address, 13, speed)
 }
 
@@ -284,14 +311,14 @@ func (r *Roboclaw) ReadVersion(address uint8) (string, error) {
 
 	var (
 		version []uint8 = make([]uint8, 0)
-		crc crcType
-		ccrc uint16
-		buf [2]uint8
-		err error
+		crc     crcType
+		ccrc    uint16
+		buf     [2]uint8
+		err     error
 	)
 
-	loop:
-	for trys := r.retries; trys > 0 ; trys-- {
+loop:
+	for trys := r.retries; trys > 0; trys-- {
 		// Empty error (this should never be returned to user, but is employed in case of error in control flow logic)
 		// That way the only way nil is returned is if there is success
 		err = fmt.Errorf("Assert: This error should be replaced by other errors or nil")
@@ -307,7 +334,7 @@ func (r *Roboclaw) ReadVersion(address uint8) (string, error) {
 
 		// Reads up to 48 bytes
 		for i := 0; i < 48; i++ {
-			if _, err = r.read_bytes(buf[:1]); err == nil {
+			if _, err = io.ReadFull(r.port, buf[:1]); err == nil {
 
 				//Use append to ensure that version is no longer than it
 				//needs to be
@@ -315,7 +342,7 @@ func (r *Roboclaw) ReadVersion(address uint8) (string, error) {
 				crc.update(buf[0])
 
 				if buf[0] == 0 {
-					if _, err = r.read_bytes(buf[:]); err == nil {
+					if _, err = io.ReadFull(r.port, buf[:]); err == nil {
 						ccrc = uint16(buf[0]) << 8
 						ccrc |= uint16(buf[1])
 
@@ -337,7 +364,6 @@ func (r *Roboclaw) ReadVersion(address uint8) (string, error) {
 	}
 	return "", err
 }
-
 
 /*
  * Set encoder 1 counter to 0 (for quadrature encoders)
@@ -801,7 +827,9 @@ func (r *Roboclaw) SpeedAccelDistanceM1M2_2(address uint8, accel1 uint32, speed1
  * @return {error}
  */
 func (r *Roboclaw) DutyAccelM1(address uint8, duty int16, accel uint32) error {
-	if accel > 655359 {return fmt.Errorf("Acceleration above maximum value of 655359")}
+	if accel > 655359 {
+		return fmt.Errorf("Acceleration above maximum value of 655359")
+	}
 	return r.write_n(address, 52, append(setWORDval(uint16(duty)), setDWORDval(accel)...)...)
 }
 
@@ -813,7 +841,9 @@ func (r *Roboclaw) DutyAccelM1(address uint8, duty int16, accel uint32) error {
  * @return {error}
  */
 func (r *Roboclaw) DutyAccelM2(address uint8, duty int16, accel uint32) error {
-	if accel > 655359 {return fmt.Errorf("Acceleration above maximum value of 655359")}
+	if accel > 655359 {
+		return fmt.Errorf("Acceleration above maximum value of 655359")
+	}
 	return r.write_n(address, 53, append(setWORDval(uint16(duty)), setDWORDval(accel)...)...)
 }
 
@@ -827,8 +857,12 @@ func (r *Roboclaw) DutyAccelM2(address uint8, duty int16, accel uint32) error {
  * @return {error}
  */
 func (r *Roboclaw) DutyAccelM1M2(address uint8, duty1 int16, accel1 uint32, duty2 int16, accel2 uint32) error {
-	if accel1 > 655359 {return fmt.Errorf("Acceleration for m1 above maximum value of 655359")}
-	if accel2 > 655359 {return fmt.Errorf("Acceleration for m2 above maximum value of 655359")}
+	if accel1 > 655359 {
+		return fmt.Errorf("Acceleration for m1 above maximum value of 655359")
+	}
+	if accel2 > 655359 {
+		return fmt.Errorf("Acceleration for m2 above maximum value of 655359")
+	}
 	array := append(setWORDval(uint16(duty1)), setDWORDval(accel1)...)
 	array = append(array, setWORDval(uint16(duty2))...)
 	array = append(array, setDWORDval(accel2)...)
@@ -843,7 +877,7 @@ func (r *Roboclaw) DutyAccelM1M2(address uint8, duty1 int16, accel1 uint32, duty
 func (r *Roboclaw) ReadM1VelocityPID(address uint8) (float32, float32, float32, uint32, error) {
 	var Kp, Ki, Kd, qpps uint32
 	err := r.read_n(address, 55, &Kp, &Ki, &Kd, &qpps)
-	return float32(Kp/65536), float32(Ki/65536), float32(Kd/65536), qpps, err
+	return float32(Kp / 65536), float32(Ki / 65536), float32(Kd / 65536), qpps, err
 }
 
 /*
@@ -854,7 +888,7 @@ func (r *Roboclaw) ReadM1VelocityPID(address uint8) (float32, float32, float32, 
 func (r *Roboclaw) ReadM2VelocityPID(address uint8) (float32, float32, float32, uint32, error) {
 	var Kp, Ki, Kd, qpps uint32
 	err := r.read_n(address, 56, &Kp, &Ki, &Kd, &qpps)
-	return float32(Kp/65536), float32(Ki/65536), float32(Kd/65536), qpps, err
+	return float32(Kp / 65536), float32(Ki / 65536), float32(Kd / 65536), qpps, err
 }
 
 /*
@@ -977,7 +1011,7 @@ func (r *Roboclaw) SetM2PositionPID(address uint8, kp_fp float32, ki_fp float32,
 func (r *Roboclaw) ReadM1PositionPID(address uint8) (float32, float32, float32, uint32, uint32, uint32, uint32, error) {
 	var Kp, Ki, Kd, KiMax, DeadZone, Min, Max uint32
 	err := r.read_n(address, 63, &Kp, &Ki, &Kd, &KiMax, &DeadZone, &Min, &Max)
-	return float32(Kp/1024), float32(Ki/1024), float32(Kd/1024), KiMax, DeadZone, Min, Max, err
+	return float32(Kp / 1024), float32(Ki / 1024), float32(Kd / 1024), KiMax, DeadZone, Min, Max, err
 }
 
 /*
@@ -988,7 +1022,7 @@ func (r *Roboclaw) ReadM1PositionPID(address uint8) (float32, float32, float32, 
 func (r *Roboclaw) ReadM2PositionPID(address uint8) (float32, float32, float32, uint32, uint32, uint32, uint32, error) {
 	var Kp, Ki, Kd, KiMax, DeadZone, Min, Max uint32
 	err := r.read_n(address, 64, &Kp, &Ki, &Kd, &KiMax, &DeadZone, &Min, &Max)
-	return float32(Kp/1024), float32(Ki/1024), float32(Kd/1024), KiMax, DeadZone, Min, Max, err
+	return float32(Kp / 1024), float32(Ki / 1024), float32(Kd / 1024), KiMax, DeadZone, Min, Max, err
 }
 
 /*
@@ -1115,13 +1149,13 @@ func (r *Roboclaw) SetPinFunctions(address uint8, s3mode uint8, s4mode uint8, s5
 func (r *Roboclaw) GetPinFunctions(address uint8) (uint8, uint8, uint8, error) {
 
 	var (
-		crc crcType
+		crc  crcType
 		ccrc uint16
-		buf [5]uint8
-		err error
+		buf  [5]uint8
+		err  error
 	)
 
-	for trys := r.retries; trys > 0 ; trys-- {
+	for trys := r.retries; trys > 0; trys-- {
 		// Empty error (this should never be returned to user, but is employed in case of error in control flow logic)
 		// That way the only way nil is returned is if there is success
 		err = fmt.Errorf("Assert: This error should be replaced by other errors or nil")
@@ -1135,7 +1169,7 @@ func (r *Roboclaw) GetPinFunctions(address uint8) (uint8, uint8, uint8, error) {
 			continue
 		}
 
-		if _, err = r.read_bytes(buf[:]); err == nil {
+		if _, err = io.ReadFull(r.port, buf[:]); err == nil {
 			crc.update(buf[0:3]...)
 
 			ccrc = uint16(buf[3]) << 8
@@ -1148,7 +1182,7 @@ func (r *Roboclaw) GetPinFunctions(address uint8) (uint8, uint8, uint8, error) {
 			}
 		}
 	}
-	return 0,0,0,err
+	return 0, 0, 0, err
 }
 
 /*
@@ -1268,7 +1302,9 @@ func (r *Roboclaw) ReadEncoderModes(address uint8) (uint8, uint8, error) {
 func (r *Roboclaw) SetM1EncoderMode(address uint8, mode uint8) error {
 	// The only valid bits are bit 0 and bit 7
 	// All others are non-applicable
-	if 0 != (mode &  0x7E){return fmt.Errorf("Encoder mode has unused bits set")}
+	if 0 != (mode & 0x7E) {
+		return fmt.Errorf("Encoder mode has unused bits set")
+	}
 	return r.write_n(address, 92, mode)
 }
 
@@ -1281,7 +1317,9 @@ func (r *Roboclaw) SetM1EncoderMode(address uint8, mode uint8) error {
 func (r *Roboclaw) SetM2EncoderMode(address uint8, mode uint8) error {
 	// The only valid bits are bit 0 and bit 7
 	// All others are non-applicable
-	if 0 != (mode &  0x7E){return fmt.Errorf("Encoder mode has unused bits set")}
+	if 0 != (mode & 0x7E) {
+		return fmt.Errorf("Encoder mode has unused bits set")
+	}
 	return r.write_n(address, 93, mode)
 }
 
@@ -1444,7 +1482,9 @@ func (r *Roboclaw) ReadM2MaxCurrent(address uint8) (uint32, error) {
  * @return {error}
  */
 func (r *Roboclaw) SetPWMMode(address uint8, mode uint8) error {
-	if mode != 0 && mode != 1 { return fmt.Errorf("PWM Mode is value other than 0 or 1") }
+	if mode != 0 && mode != 1 {
+		return fmt.Errorf("PWM Mode is value other than 0 or 1")
+	}
 	return r.write_n(address, 148, mode)
 }
 

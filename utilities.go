@@ -7,7 +7,7 @@ package roboclaw
  * @return {[]uint8}
  */
 func setWORDval(val uint16) []uint8 {
-	return []uint8{uint8(val >> 8),uint8(val)}
+	return []uint8{uint8(val >> 8), uint8(val)}
 }
 
 /*
@@ -16,5 +16,5 @@ func setWORDval(val uint16) []uint8 {
  * @return {[]uint8}
  */
 func setDWORDval(val uint32) []uint8 {
-	return []uint8{uint8(val >> 24),uint8(val >> 16),uint8(val >> 8),uint8(val)}
+	return []uint8{uint8(val >> 24), uint8(val >> 16), uint8(val >> 8), uint8(val)}
 }
