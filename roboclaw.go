@@ -1030,7 +1030,7 @@ func (r *Roboclaw) ReadM2PositionPID(address uint8) (float32, float32, float32, 
  * @param address {uint8}
  * @param accel {uint32}	acceleration is unsigned
  * @param speed {int32}
- * @param deccel {uint32}	distance is unsigned
+ * @param deccel {uint32}	decceleration is unsigned
  * @param position {uint32}	position is unsigned
  * @param buffer {bool} true to override the previous command, false to buffer
  * @return {error}
@@ -1053,7 +1053,7 @@ func (r *Roboclaw) SpeedAccelDeccelPositionM1(address uint8, accel uint32, speed
  * @param address {uint8}
  * @param accel {uint32}	acceleration is unsigned
  * @param speed {int32}
- * @param deccel {uint32}	distance is unsigned
+ * @param deccel {uint32}	decceleration is unsigned
  * @param position {uint32}	position is unsigned
  * @param buffer {bool} true to override the previous command, false to buffer
  * @return {error}
@@ -1076,11 +1076,11 @@ func (r *Roboclaw) SpeedAccelDeccelPositionM2(address uint8, accel uint32, speed
  * @param address {uint8}
  * @param accel1 {uint32}	acceleration is unsigned
  * @param speed1 {int32}
- * @param deccel1 {uint32}	distance is unsigned
+ * @param deccel1 {uint32}	decceleration is unsigned
  * @param position1 {uint32}	position is unsigned
  * @param accel2 {uint32}	acceleration is unsigned
  * @param speed2 {int32}
- * @param deccel2 {uint32}	distance is unsigned
+ * @param deccel2 {uint32}	decceleration is unsigned
  * @param position2 {uint32}	position is unsigned
  * @param buffer {bool} true to override the previous command, false to buffer
  * @return {error}
