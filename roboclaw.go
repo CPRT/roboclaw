@@ -1276,11 +1276,15 @@ func (r *Roboclaw) ReadTemp2(address uint8) (uint16, error) {
 
 /*
  * Read any statuses from the roboclaw
+ * The reference manual says that the status is a 16 bit int,
+ * but recently the roboclaws have been returning a 32 bit int
+ * This probably occurred due to a firmware update, though
+ * I have not yet found where it is documented
  * @param address {uint8}
  * @return {uint16, error} address, error
  */
-func (r *Roboclaw) ReadError(address uint8) (uint16, error) {
-	return r.read2(address, 90)
+func (r *Roboclaw) ReadError(address uint8) (uint32, error) {
+	return r.read4(address, 90)
 }
 
 /*
